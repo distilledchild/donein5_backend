@@ -1,0 +1,18 @@
+class: Member
+table: member
+fields:
+  mongoId: String?
+  name: String
+  auth: String # JSON string for flexibility until we define a stricter type
+  email: String
+  passwordHash: String?
+  profileImage: String?
+  foodStyle: List<String>?
+  spicyHeat: String? # JSON string for Map<String, String?>
+  dietStyle: List<String>?
+  allergies: List<String>?
+  dislikeIngredients: List<String>?
+  profile: String? # JSON string for Map<String, dynamic>
+  favoriteFolders: String? # JSON string for Map<String, List<String>>
+  createdAt: DateTime
+  updatedAt: DateTime

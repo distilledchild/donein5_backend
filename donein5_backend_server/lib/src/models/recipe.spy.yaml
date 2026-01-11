@@ -1,0 +1,11 @@
+class: Recipe
+table: recipe
+fields:
+  title: String
+  description: String?
+  imageUrl: String?
+  cookingTime: int?
+  servings: int?
+  ingredients: List<String>
+  instructions: List<String>
+  createdAt: DateTime

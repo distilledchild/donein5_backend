@@ -1,0 +1,33 @@
+emailIdp:
+  - login:
+  - startRegistration:
+  - verifyRegistrationCode:
+  - finishRegistration:
+  - startPasswordReset:
+  - verifyPasswordResetCode:
+  - finishPasswordReset:
+jwtRefresh:
+  - refreshAccessToken:
+member:
+  - registerWithEmail:
+  - loginWithEmail:
+  - findByEmail:
+  - registerWithGoogle:
+  - registerWithFacebook:
+  - addFavoriteFood:
+  - updateEmail:
+  - updatePreferences:
+  - updateFoodStyle:
+  - updateSpicyHeat:
+  - updateProfile:
+  - updateOnboardingPreferences:
+  - addFavoriteFoodToFolder:
+  - createEmptyCollection:
+userRecipe:
+  - saveRecipe:
+  - getRecipesByMember:
+  - getRecipeById:
+  - getRecipesByIds:
+  - deleteRecipe:
+greeting:
+  - hello:

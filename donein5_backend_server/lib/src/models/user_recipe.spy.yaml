@@ -1,0 +1,14 @@
+class: UserRecipe
+table: user_recipe
+fields:
+  mongoId: String? # To store MongoDB ObjectId
+  memberId: String
+  name: String
+  description: String?
+  coverImageUrl: String?
+  cookingTimeMinutes: int
+  difficulty: String
+  category: String?
+  ingredients: String # JSON string for List<Map<String, dynamic>>
+  steps: String # JSON string for List<Map<String, dynamic>>
+  createdAt: DateTime
