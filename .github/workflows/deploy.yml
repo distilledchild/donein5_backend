@@ -1,0 +1,61 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} # Setup this secret in GitHub
+  REGION: us-central1 # Updated to US Central
+  SERVICE_NAME: donein5-backend
+  REPO_NAME: donein5-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Verify secrets needed
+      - name: Check secrets
+        if: env.PROJECT_ID == ''
+        run: echo "Secrets GCP_PROJECT_ID is not set. Please set it in GitHub Actions Environment secrets." && exit 1
+
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}' # Add Service Account Key JSON to secrets
+
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Configure Docker
+        run: |
+          gcloud auth configure-docker ${REGION}-docker.pkg.dev
+
+      - name: Build and Push Container
+        run: |
+          docker build -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:${{ github.sha }} .
+          docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: '${{ env.SERVICE_NAME }}'
+          region: '${{ env.REGION }}'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}'
+          env_vars: |
+            MONGODB_HOST=${{ secrets.MONGODB_HOST }}
+            MONGODB_USER=${{ secrets.MONGODB_USER }}
+            MONGODB_PASSWORD=${{ secrets.MONGODB_PASSWORD }}
+            MONGODB_DATABASE=${{ secrets.MONGODB_DATABASE }}
+            MONGODB_COLLECTION=${{ secrets.MONGODB_COLLECTION }}
+            SERVERPOD_PASSWORDS=${{ secrets.SERVERPOD_PASSWORDS }}

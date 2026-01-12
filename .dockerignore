@@ -1,0 +1,8 @@
+
+**/.git
+**/.DS_Store
+**/build
+**/doc
+.env
+.env.*
+**/config/passwords.yaml
