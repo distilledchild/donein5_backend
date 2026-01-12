@@ -573,7 +573,7 @@ class _MemberEndpoint {
 
   _i3.Future<_i5.Member?> registerWithGoogle(
     _i1.TestSessionBuilder sessionBuilder, {
-    required String googleId,
+    required String idToken,
     required String name,
     required String email,
     String? photoUrl,
@@ -590,7 +590,7 @@ class _MemberEndpoint {
           endpointPath: 'member',
           methodName: 'registerWithGoogle',
           parameters: _i1.testObjectToJson({
-            'googleId': googleId,
+            'idToken': idToken,
             'name': name,
             'email': email,
             'photoUrl': photoUrl,
@@ -612,7 +612,7 @@ class _MemberEndpoint {
 
   _i3.Future<_i5.Member?> registerWithFacebook(
     _i1.TestSessionBuilder sessionBuilder, {
-    required String facebookId,
+    required String accessToken,
     required String name,
     required String email,
     String? photoUrl,
@@ -629,7 +629,7 @@ class _MemberEndpoint {
           endpointPath: 'member',
           methodName: 'registerWithFacebook',
           parameters: _i1.testObjectToJson({
-            'facebookId': facebookId,
+            'accessToken': accessToken,
             'name': name,
             'email': email,
             'photoUrl': photoUrl,

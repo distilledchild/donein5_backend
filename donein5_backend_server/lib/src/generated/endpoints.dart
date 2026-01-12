@@ -333,8 +333,8 @@ class Endpoints extends _i1.EndpointDispatch {
         'registerWithGoogle': _i1.MethodConnector(
           name: 'registerWithGoogle',
           params: {
-            'googleId': _i1.ParameterDescription(
-              name: 'googleId',
+            'idToken': _i1.ParameterDescription(
+              name: 'idToken',
               type: _i1.getType<String>(),
               nullable: false,
             ),
@@ -361,7 +361,7 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['member'] as _i4.MemberEndpoint)
                   .registerWithGoogle(
                     session,
-                    googleId: params['googleId'],
+                    idToken: params['idToken'],
                     name: params['name'],
                     email: params['email'],
                     photoUrl: params['photoUrl'],
@@ -370,8 +370,8 @@ class Endpoints extends _i1.EndpointDispatch {
         'registerWithFacebook': _i1.MethodConnector(
           name: 'registerWithFacebook',
           params: {
-            'facebookId': _i1.ParameterDescription(
-              name: 'facebookId',
+            'accessToken': _i1.ParameterDescription(
+              name: 'accessToken',
               type: _i1.getType<String>(),
               nullable: false,
             ),
@@ -398,7 +398,7 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['member'] as _i4.MemberEndpoint)
                   .registerWithFacebook(
                     session,
-                    facebookId: params['facebookId'],
+                    accessToken: params['accessToken'],
                     name: params['name'],
                     email: params['email'],
                     photoUrl: params['photoUrl'],

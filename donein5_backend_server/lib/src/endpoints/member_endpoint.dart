@@ -1,3 +1,4 @@
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import 'package:crypto/crypto.dart';
@@ -65,29 +66,49 @@ class MemberEndpoint extends Endpoint {
     return null;
   }
 
-  /// Register with Google
+  /// Register with Google (Secure Verification)
+  /// Receives [idToken] from client, validates with Google, and extracts user info.
   Future<Member?> registerWithGoogle(Session session, {
-    required String googleId, 
-    required String name, 
-    required String email, 
+    required String idToken,
+    required String name, // Can still accept name/photo from client for convenience, or extract from token
+    required String email, // Client sent email, but we verify it matches token
     String? photoUrl
   }) async {
-    // Check existing
-    var existing = await _members.findOne(mongo.where.eq('email', email));
+    // 1. Verify ID Token with Google
+    final response = await http.get(
+      Uri.parse('https://oauth2.googleapis.com/tokeninfo?id_token=$idToken'),
+    );
+
+    if (response.statusCode != 200) {
+      session.log('Google Token Verification Failed: ${response.body}', level: LogLevel.error);
+      return null;
+    }
+
+    final payload = jsonDecode(response.body);
+    final verifiedEmail = payload['email'];
+    final googleId = payload['sub']; // Unique Google User ID
     
+    // 2. Security Check: Mismatch
+    if (verifiedEmail != email) {
+      session.log('Security Warning: Email mismatch. Client: $email, Token: $verifiedEmail', level: LogLevel.warning);
+      return null;
+    }
+
+    // 3. Process Login/Register
+    var existing = await _members.findOne(mongo.where.eq('email', verifiedEmail));
     final now = DateTime.now();
 
     if (existing != null) {
        // Update existing
        await _members.updateOne(
-         mongo.where.eq('email', email),
+         mongo.where.eq('email', verifiedEmail),
          mongo.modify
-           .set('auth', jsonEncode({'googleId': googleId}))
+           .set('auth', jsonEncode({'googleId': googleId})) // Store verified Google ID
            .set('profileImage', photoUrl)
            .set('name', name)
            .set('updatedAt', now.toIso8601String())
        );
-       final updated = await _members.findOne(mongo.where.eq('email', email));
+       final updated = await _members.findOne(mongo.where.eq('email', verifiedEmail));
        return _mapToMember(updated!);
     }
 
@@ -95,7 +116,7 @@ class MemberEndpoint extends Endpoint {
     final doc = {
       'name': name,
       'auth': jsonEncode({'googleId': googleId}),
-      'email': email,
+      'email': verifiedEmail,
       'profileImage': photoUrl,
       'createdAt': now.toIso8601String(),
       'updatedAt': now.toIso8601String(),
@@ -110,28 +131,53 @@ class MemberEndpoint extends Endpoint {
     return null;
   }
 
-  /// Register with Facebook
+  /// Register with Facebook (Secure Verification)
+  /// Receives [accessToken] from client, validates with Facebook Graph API.
   Future<Member?> registerWithFacebook(Session session, {
-    required String facebookId, 
+    required String accessToken,
     required String name, 
     required String email, 
     String? photoUrl
   }) async {
-    // Check existing
-    var existing = await _members.findOne(mongo.where.eq('email', email));
-    
+    // 1. Verify Access Token with Facebook Graph API
+    // We request id, name, email to verify identity
+    final response = await http.get(
+      Uri.parse('https://graph.facebook.com/me?fields=id,name,email&access_token=$accessToken'),
+    );
+
+    if (response.statusCode != 200) {
+      session.log('Facebook Token Verification Failed: ${response.body}', level: LogLevel.error);
+      return null;
+    }
+
+    final payload = jsonDecode(response.body);
+    final verifiedEmail = payload['email'];
+    final facebookId = payload['id'];
+
+    if (verifiedEmail == null) {
+       session.log('Facebook Login Error: Email permission not granted or missing.', level: LogLevel.error);
+       return null;
+    }
+
+    // 2. Security Check
+    if (verifiedEmail != email) {
+       session.log('Security Warning: Email mismatch. Client: $email, Facebook: $verifiedEmail', level: LogLevel.warning);
+       return null;
+    }
+
+    var existing = await _members.findOne(mongo.where.eq('email', verifiedEmail));
     final now = DateTime.now();
 
     if (existing != null) {
        // Update existing
        await _members.updateOne(
-         mongo.where.eq('email', email),
+         mongo.where.eq('email', verifiedEmail),
          mongo.modify
            .set('auth', jsonEncode({'facebookId': facebookId}))
            .set('profileImage', photoUrl)
            .set('updatedAt', now.toIso8601String())
        );
-       final updated = await _members.findOne(mongo.where.eq('email', email));
+       final updated = await _members.findOne(mongo.where.eq('email', verifiedEmail));
        return _mapToMember(updated!);
     }
 
@@ -139,7 +185,7 @@ class MemberEndpoint extends Endpoint {
     final doc = {
       'name': name,
       'auth': jsonEncode({'facebookId': facebookId}),
-      'email': email,
+      'email': verifiedEmail,
       'profileImage': photoUrl,
       'createdAt': now.toIso8601String(),
       'updatedAt': now.toIso8601String(),

@@ -279,9 +279,10 @@ class EndpointMember extends _i2.EndpointRef {
         {'email': email},
       );
 
-  /// Register with Google
+  /// Register with Google (Secure Verification)
+  /// Receives [idToken] from client, validates with Google, and extracts user info.
   _i3.Future<_i5.Member?> registerWithGoogle({
-    required String googleId,
+    required String idToken,
     required String name,
     required String email,
     String? photoUrl,
@@ -289,16 +290,17 @@ class EndpointMember extends _i2.EndpointRef {
     'member',
     'registerWithGoogle',
     {
-      'googleId': googleId,
+      'idToken': idToken,
       'name': name,
       'email': email,
       'photoUrl': photoUrl,
     },
   );
 
-  /// Register with Facebook
+  /// Register with Facebook (Secure Verification)
+  /// Receives [accessToken] from client, validates with Facebook Graph API.
   _i3.Future<_i5.Member?> registerWithFacebook({
-    required String facebookId,
+    required String accessToken,
     required String name,
     required String email,
     String? photoUrl,
@@ -306,7 +308,7 @@ class EndpointMember extends _i2.EndpointRef {
     'member',
     'registerWithFacebook',
     {
-      'facebookId': facebookId,
+      'accessToken': accessToken,
       'name': name,
       'email': email,
       'photoUrl': photoUrl,
