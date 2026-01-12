@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:dotenv/dotenv.dart';
 
@@ -28,7 +29,7 @@ class MongoDB {
     final appName = _env['MONGODB_APP_NAME'] ?? '';
 
     if (host.isEmpty) {
-      print('MongoDB credentials not found in environment');
+      developer.log('MongoDB credentials not found in environment', name: 'MongoDB');
       return;
     }
 
@@ -41,9 +42,9 @@ class MongoDB {
     try {
       _db = await Db.create(connStr);
       await _db!.open();
-      print('Connected to MongoDB successfully!');
+      developer.log('Connected to MongoDB successfully!', name: 'MongoDB');
     } catch (e) {
-      print('MongoDB connection error: $e');
+      developer.log('MongoDB connection error: $e', name: 'MongoDB');
     }
   }
 }
