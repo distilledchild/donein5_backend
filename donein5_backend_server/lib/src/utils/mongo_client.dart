@@ -8,24 +8,24 @@ class MongoDB {
 
   Db? _db;
   
-  DbCollection? get members => _db?.collection(env['MONGODB_COLLECTION'] ?? 'MEMBER');
+  DbCollection? get members => _db?.collection(_env['MONGODB_COLLECTION'] ?? 'MEMBER');
   // Add other collections as needed
   DbCollection? get recipes => _db?.collection('MFDS_ENG'); // Assuming this is the recipe collection based on user request "MFDS_ENG"
 
+  final _env = DotEnv(includePlatformEnvironment: true)..load();
+
   Future<void> connect() async {
     if (_db != null && _db!.isConnected) return;
-
-    // Load .env from project root or specific location
-    // Note: Serverpod usually runs from the server directory. 
-    // We will assume .env is placed in donein5_backend_server/ or we need to pass the path.
-    // For now, let's try to load from current directory.
-    var env = DotEnv(includePlatformEnvironment: true)..load();
     
-    final host = env['MONGODB_HOST'] ?? '';
-    final user = env['MONGODB_USER'] ?? '';
-    final password = env['MONGODB_PASSWORD'] ?? '';
-    final database = env['MONGODB_DATABASE'] ?? 'donein5';
-    final appName = env['MONGODB_APP_NAME'] ?? '';
+    // Create new env if not loaded, or use field. 
+    // Field initializer is ran on instance creation. Singleton implies it runs once.
+    // _env is available.
+    
+    final host = _env['MONGODB_HOST'] ?? '';
+    final user = _env['MONGODB_USER'] ?? '';
+    final password = _env['MONGODB_PASSWORD'] ?? '';
+    final database = _env['MONGODB_DATABASE'] ?? 'donein5';
+    final appName = _env['MONGODB_APP_NAME'] ?? '';
 
     if (host.isEmpty) {
       print('MongoDB credentials not found in environment');
