@@ -16,22 +16,10 @@ void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
   final pod = Serverpod(args, Protocol(), Endpoints());
 
-  // Initialize authentication services for the server.
-  // Token managers will be used to validate and issue authentication keys,
-  // and the identity providers will be the authentication options available for users.
-  pod.initializeAuthServices(
-    tokenManagerBuilders: [
-      // Use JWT for authentication keys towards the server.
-      JwtConfigFromPasswords(),
-    ],
-    identityProviderBuilders: [
-      // Configure the email identity provider for email/password authentication.
-      EmailIdpConfigFromPasswords(
-        sendRegistrationVerificationCode: _sendRegistrationCode,
-        sendPasswordResetVerificationCode: _sendPasswordResetCode,
-      ),
-    ],
-  );
+  // REMOVED: pod.initializeAuthServices(...) 
+  // Reason: We are using MongoDB for authentication manually in MemberEndpoint.
+  // The default Serverpod Auth module requires PostgreSQL, which causes the server to crash on startup
+  // when no PostgreSQL is available.
 
   // Setup a default page at the web root.
   // These are used by the default page.
