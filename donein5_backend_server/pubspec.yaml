@@ -11,6 +11,7 @@ dependencies:
   serverpod_auth_idp_server: 3.2.0
   mongo_dart: ^0.10.5
   dotenv: ^4.2.0
+  crypto: ^3.0.3
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'
@@ -29,4 +30,3 @@ serverpod:
     # that happens on windows. Issue is tracked in the flutter
     # repository here: https://github.com/flutter/flutter/issues/157886
     flutter_build: cd ../donein5_backend_flutter && flutter build web --base-href /app/ --wasm && rm -rf ../donein5_backend_server/web/app && mv build/web/ ../donein5_backend_server/web/app
-crypto: ^3.0.3
